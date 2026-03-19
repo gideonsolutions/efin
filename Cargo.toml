@@ -1,0 +1,11 @@
+[package]
+name = "efin"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "6-digit IRS Electronic Filing Identification Number (EFIN) type"
+repository = "https://github.com/gideonsolutions/efin"
+keywords = ["irs", "tax", "efin", "mef"]
+categories = ["data-structures"]
+
+[dependencies]
