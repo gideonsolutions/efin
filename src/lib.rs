@@ -5,18 +5,21 @@ use std::str::FromStr;
 ///
 /// An EFIN is assigned by the IRS to authorized e-file providers. It is always
 /// exactly 6 ASCII digits (e.g. `"007777"`).
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Efin(String);
 
 /// Error returned when an EFIN string is invalid.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParseEfinError {
-    _private: (),
+pub enum ParseEfinError {
+    /// The input was not exactly 6 ASCII digits.
+    Invalid,
 }
 
 impl fmt::Display for ParseEfinError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("invalid EFIN: must be exactly 6 ASCII digits")
+        match self {
+            Self::Invalid => f.write_str("invalid EFIN: must be exactly 6 ASCII digits"),
+        }
     }
 }
 
@@ -41,7 +44,7 @@ impl FromStr for Efin {
         if s.len() == 6 && s.bytes().all(|b| b.is_ascii_digit()) {
             Ok(Self(s.to_owned()))
         } else {
-            Err(ParseEfinError { _private: () })
+            Err(ParseEfinError::Invalid)
         }
     }
 }
@@ -91,10 +94,10 @@ mod tests {
     }
 
     #[test]
-    fn equality_and_ord() {
+    fn equality() {
         let a = Efin::new("000001").unwrap();
         let b = Efin::new("000002").unwrap();
-        assert!(a < b);
+        assert_ne!(a, b);
         assert_eq!(a, a.clone());
     }
 }
