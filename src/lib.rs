@@ -6,7 +6,7 @@ use std::str::FromStr;
 /// An EFIN is assigned by the IRS to authorized e-file providers. It is always
 /// exactly 6 ASCII digits (e.g. `"007777"`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Efin([u8; 6]);
+pub struct Efin(String);
 
 /// Error returned when an EFIN string is invalid.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -30,8 +30,7 @@ impl Efin {
 
     /// Return the EFIN as a `&str`.
     pub fn as_str(&self) -> &str {
-        // SAFETY: we only store ASCII digits.
-        unsafe { std::str::from_utf8_unchecked(&self.0) }
+        &self.0
     }
 }
 
@@ -39,11 +38,8 @@ impl FromStr for Efin {
     type Err = ParseEfinError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let bytes = s.as_bytes();
-        if bytes.len() == 6 && bytes.iter().all(|b| b.is_ascii_digit()) {
-            let mut arr = [0u8; 6];
-            arr.copy_from_slice(bytes);
-            Ok(Self(arr))
+        if s.len() == 6 && s.bytes().all(|b| b.is_ascii_digit()) {
+            Ok(Self(s.to_owned()))
         } else {
             Err(ParseEfinError { _private: () })
         }
@@ -52,13 +48,13 @@ impl FromStr for Efin {
 
 impl fmt::Display for Efin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.as_str())
+        f.write_str(&self.0)
     }
 }
 
 impl AsRef<str> for Efin {
     fn as_ref(&self) -> &str {
-        self.as_str()
+        &self.0
     }
 }
 
